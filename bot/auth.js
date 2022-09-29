@@ -7,7 +7,8 @@ if (!AuthConfig.hasOwnProperty('bot_token')) {
   //attempt to populate from ENV variables. useful for remote cloud deploys
   AuthConfig = {
     bot_token: process.env.BOT_TOKEN,
-    client_id: process.env.BOT_CLIENT_ID
+    client_id: process.env.BOT_CLIENT_ID,
+    guild_id: process.env.GUILD_ID
   }
 }
 
