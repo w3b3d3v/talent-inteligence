@@ -1,3 +1,4 @@
+
 // Require the necessary discord.js classes
 const { Client, GatewayIntentBits } = require('discord.js');
 const { bot_token } = require('../config/auth.json');
@@ -13,15 +14,28 @@ client.once('ready', () => {
 
 client.on('interactionCreate', async interaction => {
 	if (!interaction.isChatInputCommand()) return;
-
+    
 	const { commandName } = interaction;
     channelId = interaction.options.getString('input');
+    
+    if(channelId.match(/^[0-9]*/)[0] == '') {
+        console.log('This is not a channel Id.')
+        await interaction.reply('This is not a channel Id.');
+        return;
+    }
+
 	if (commandName == 'get') {
-        channel = client.channels.cache.find(channel=> channel.id == channelId);
-        channel.messages.fetch().then(messages => {
-            messages.forEach(message => messages.append(message.content))
-        })
-		await interaction.reply('Pong!');
+        try {
+            channel = client.channels.cache.find(channel=> channel.id == channelId);
+            channel.messages.fetch().then(messages => {
+                messages.forEach(message => messages.append(message.content))
+            })
+		    await interaction.reply('Pong!');
+        }
+        catch(e) {
+            console.error(e);
+            await interaction.reply('Algo deu errado.');
+        }
 	} else {
         return;
     }
