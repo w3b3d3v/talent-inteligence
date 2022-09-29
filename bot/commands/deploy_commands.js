@@ -4,7 +4,9 @@ const { client_id,  bot_token, guild_id } = require('../../config/auth.json');
 const commands = [
 	new SlashCommandBuilder()
     .setName('get').setDescription('get')
-    .addStringOption(option => option.setName('input').setDescription('Channel Id'))
+    .addStringOption(option => option.setName('input').setDescription('Channel Id')),
+
+    new SlashCommandBuilder().setName('process').setDescription('process')
 ]
 	.map(command => command.toJSON());
 

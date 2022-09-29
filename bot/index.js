@@ -16,15 +16,16 @@ client.on('interactionCreate', async interaction => {
 	if (!interaction.isChatInputCommand()) return;
     
 	const { commandName } = interaction;
-    channelId = interaction.options.getString('input');
-    
-    if(channelId.match(/^[0-9]*/)[0] == '') {
-        console.log('This is not a channel Id.')
-        await interaction.reply('This is not a channel Id.');
-        return;
-    }
 
 	if (commandName == 'get') {
+        channelId = interaction.options.getString('input');
+    
+        if(channelId.match(/^[0-9]*/)[0] == '') {
+            console.log('This is not a channel Id.')
+            await interaction.reply('This is not a channel Id.');
+            return;
+        }
+
         try {
             channel = client.channels.cache.find(channel=> channel.id == channelId);
             channel.messages.fetch().then(messages => {
@@ -36,7 +37,22 @@ client.on('interactionCreate', async interaction => {
             console.error(e);
             await interaction.reply('Algo deu errado.');
         }
-	} else {
+	} 
+
+    else if (commandName == 'process') {
+        const job = require('./jobs/processJob');
+        
+        try {
+            job.process(['a'])
+            await interaction.reply('Processed');
+        }
+
+        catch(e) {
+            console.error(e);
+        }
+    }
+    
+    else {
         return;
     }
 });
