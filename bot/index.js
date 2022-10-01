@@ -43,12 +43,12 @@ client.on('interactionCreate', async interaction => {
         const job = require('./jobs/processJob');
         
         try {
-            job.process(['a'])
-            await interaction.reply('Processed');
+            await job.storeMessages(['test message']);
+            await interaction.reply('Messages stored');
         }
 
         catch(e) {
-            console.error(e);
+            console.log(e);
         }
     }
     
