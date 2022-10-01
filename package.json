@@ -2,7 +2,8 @@
   "dependencies": {
     "discord.js": "^14.5.0",
     "dotenv": "^16.0.3",
-    "nodemon": "^2.0.20"
+    "nodemon": "^2.0.20",
+    "sqlite3": "^5.1.1"
   },
   "main": "./bot/index.js",
   "scripts": {
