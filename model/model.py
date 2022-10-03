@@ -24,7 +24,7 @@ for i in range(20):
         example = Example.from_dict(doc, {"entities": annotations})
         nlp.update([example], sgd=optimizer)
 
-doc = nlp("Meu nome é lorezo, trabalho na empresa web3dev e utilizo javascript todos os dias.")
+doc = nlp("Olá pessoal! Meu nome é Lucas e sou um desenvolvedor web buscando aprender sobre web3, solidity e blockchain.")
 
 for entity in doc.ents:
   print(entity.label_, ' | ', entity.text)

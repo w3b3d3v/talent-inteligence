@@ -1,10 +1,11 @@
 from distutils.log import error
 from typing import List, Tuple
 import sqlite3
+import json
 
 def generateTrainingData() -> List[Tuple]:
   training_data = []
-  technologies = ["react", "javascript", "python", "c", "c#", "elixir", "desenvolvimento web", "html", "css", "angular", "vue", "haskell"]
+  technologies = ["react", "javascript", "python", "c", "c#", "elixir", "desenvolvimento web", "html", "css", "angular", "vue", "haskell", "solidity", "blockchain"]
   # len tech = 12
   phrases = ["Há anos que trabalho com ", "Venho estudando e aplicando no trabalho o ", "Meu emprego envolve tecnologias como ", "Nos últimos anos, trabalhei em projetos com ", "Estou aprendendo a usar ", "Meus estudos envolvem ", "Mexo com ", "Estou estagiando e uso ", "No meu estágio, aprendi "]
   # phrases = 9
@@ -25,5 +26,10 @@ def getMessages(limit: int=100) -> List[str]:
     res = cur.execute(query)
     messages = res.fetchall()
     return [msg[0] for msg in messages]
+  
+def getJson() -> List[Tuple]:
+  with open("./data/labeled.json") as f:
+    file_contents = f.read()
 
-getMessages()
+  parsed_json = json.loads(file_contents)
+  return parsed_json
