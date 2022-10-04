@@ -1,4 +1,4 @@
-from distutils.log import error
+
 from typing import List, Tuple
 import sqlite3
 import json
