@@ -4,27 +4,18 @@ import sqlite3
 import json
 
 
-# def generateTrainingData(all_data: List[object] = []) -> List[Tuple]:
-#   training_data = []
-#   for data in all_data:
-#     training_data.append((data[""]))
+def generateTrainingData(all_data: List[object] = []) -> List[Tuple]:
+  training_data = []
   
-  
-  
-  
-
-#   for phrase in phrases:
-#     for tech in technologies:
-#       train_phr = f"{phrase}{tech}"
-#       idxStart = train_phr.find(tech)
-#       idxEnd = idxStart + len(tech)
-#       training_data.append((train_phr, [(idxStart, idxEnd, "TECH")]))
-#   return training_data
+  for data in all_data:
+    annots = [(an["start"], an["end"], an["labels"][0]) for an in data["annotations"]]
+    
+    training_data.append((data["original_text"], annots))
+    
+  return training_data
 
 def cleanData(all_data: List=[]) -> List[str]:
   cleaned = []
-  print(all_data[1])
-  print(all_data[1])
   for data in all_data:
     text = data["data"]["text"]
     data_id = data["id"]
@@ -37,8 +28,6 @@ def cleanData(all_data: List=[]) -> List[str]:
       "annotations": annotations
     }
     cleaned.append(cleaned_obj)
-
-  print(cleaned)
   return cleaned
 
 
@@ -57,4 +46,4 @@ def getJson(filename) -> List[Tuple]:
   parsed_json = json.loads(file_contents)
   return parsed_json
 
-cleanData(getJson("labeled"))
+generateTrainingData(cleanData(getJson("labeled")))
