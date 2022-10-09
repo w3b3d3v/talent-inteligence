@@ -7,7 +7,7 @@ from pathlib import Path
 from tqdm import tqdm
 
 model = None
-n_iter=1
+n_iter=100
 output_dir = Path("/saved_model")
 
 # Checks to see if there is a current model or no model. In this case I will be starting with a blank model 
@@ -38,11 +38,10 @@ with ner_model.disable_pipes(*other_pipes):  # only train NER
             example = Example.from_dict(doc, {"entities": annotations})
             ner_model.update(
                 [example],
-                drop=0.5,  # dropout 
                 sgd=optimizer,  # callable to update weights
                 losses=losses)
         print(losses)
-      
-for text, _ in TRAIN_DATA:
-  doc = ner_model('Meu nome é Lorenzo, trabalho com Javascript no Brasil.')
-  print('Entities', [(ent.text, ent.label) for ent in doc.ents])
+
+doc = ner_model('Trabalho com ReactJs e meu nome é Lorenzo')
+for ent in doc.ents:
+    print(ent.label_, ent.text)
