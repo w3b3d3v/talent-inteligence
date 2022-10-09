@@ -9,7 +9,6 @@ def generateTrainingData(all_data: List[object] = []) -> List[Tuple]:
   
   for data in all_data:
     annots = [(an["start"], an["end"], an["labels"][0]) for an in data["annotations"]]
-    
     training_data.append((data["original_text"], annots))
     
   return training_data
@@ -45,5 +44,3 @@ def getJson(filename) -> List[Tuple]:
 
   parsed_json = json.loads(file_contents)
   return parsed_json
-
-generateTrainingData(cleanData(getJson("labeled")))

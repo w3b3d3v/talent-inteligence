@@ -1,3 +1,4 @@
+
 from helpers import generateTrainingData, getJson, cleanData
 import random
 import spacy 
@@ -6,7 +7,7 @@ from pathlib import Path
 from tqdm import tqdm
 
 model = None
-n_iter=100
+n_iter=1
 output_dir = Path("/saved_model")
 
 # Checks to see if there is a current model or no model. In this case I will be starting with a blank model 
