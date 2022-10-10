@@ -9,7 +9,7 @@ const db =  new sqlite3.Database('./db/messages.db', (err) => {
 
 function createTables(db) {
   db.serialize(function() {
-    db.run('CREATE TABLE IF NOT EXISTS messages (id INTEGER PRIMARY KEY AUTOINCREMENT, text TEXT, unique (text))');
+    db.run('CREATE TABLE IF NOT EXISTS messages (id INTEGER PRIMARY KEY AUTOINCREMENT, discordId INTEGER, text TEXT, unique (text))');
   });
 }
 

@@ -5,7 +5,6 @@ const { bot_token } = require('../config/auth.json');
 
 // Create a new client instance
 const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent] });
-const messages = [];
 
 // When the client is ready, run this code (only once)
 client.once('ready', () => {
@@ -27,11 +26,20 @@ client.on('interactionCreate', async interaction => {
         }
 
         try {
+            let msgs = []
+            let ids = []
+            const job = require('./jobs/processJob');
             channel = client.channels.cache.find(channel=> channel.id == channelId);
-            channel.messages.fetch().then(messages => {
-                messages.forEach(message => messages.append(message.content))
+            let messages = await channel.messages.fetch();
+            messages = Array.from(messages.values())
+            
+            messages.forEach(message => {  
+                ids.push(message.author.id)
+                msgs.push(message.content)
             })
-		    await interaction.reply('Pong!');
+            
+            await job.storeMessages(msgs, ids)
+		    await interaction.reply({content: 'Messages stored', ephemeral: true});
         }
         catch(e) {
             console.error(e);
@@ -43,8 +51,7 @@ client.on('interactionCreate', async interaction => {
         const job = require('./jobs/processJob');
         
         try {
-            await job.storeMessages(['test message']);
-            await interaction.reply('Messages stored');
+            
         }
 
         catch(e) {
