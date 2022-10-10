@@ -8,7 +8,7 @@ from tqdm import tqdm
 
 model = None
 n_iter=100
-output_dir = Path("/saved_model")
+output_dir = Path("./saved_model")
 
 # Checks to see if there is a current model or no model. In this case I will be starting with a blank model 
 if model is not None:
@@ -42,6 +42,14 @@ with ner_model.disable_pipes(*other_pipes):  # only train NER
                 losses=losses)
         print(losses)
 
-doc = ner_model('Trabalho com ReactJs e meu nome é Lorenzo')
+if output_dir is not None:
+    output_dir = Path(output_dir)
+    if not output_dir.exists():
+        output_dir.mkdir()
+    ner_model.meta['name'] = "Entity Extractor" # rename model
+    ner_model.to_disk(output_dir)
+    print("Saved model to", output_dir)
+
+doc = ner_model('Fala pessoal, meu nome é Gustavo mas podem me chamar de Gusta. Tenho 26 anos, sou baiano e amo programar. Atualmente trabalho com desenvolvimento de apps (React/React Native)')
 for ent in doc.ents:
     print(ent.label_, ent.text)

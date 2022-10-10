@@ -33,10 +33,10 @@ def cleanData(all_data: List=[]) -> List[str]:
 def getMessages(limit: int=100) -> List[str]:
     con = sqlite3.connect("db/messages.db")
     cur = con.cursor()
-    query = f"SELECT text FROM messages LIMIT {limit};"
+    query = f"SELECT text, discordId FROM messages LIMIT {limit};"
     res = cur.execute(query)
-    messages = res.fetchall()
-    return [msg[0] for msg in messages]
+    data = res.fetchall()
+    return data
   
 def getJson(filename) -> List[Tuple]:
   with open(f"./data/{filename}.json") as f:
