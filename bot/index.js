@@ -26,17 +26,19 @@ client.on('interactionCreate', async interaction => {
         }
 
         try {
-            let msgs = [];
+            let msgs = []
+            let ids = []
             const job = require('./jobs/processJob');
             channel = client.channels.cache.find(channel=> channel.id == channelId);
             let messages = await channel.messages.fetch();
             messages = Array.from(messages.values())
-
+            
             messages.forEach(message => {  
+                ids.push(message.author.id)
                 msgs.push(message.content)
             })
             
-            await job.storeMessages(msgs)
+            await job.storeMessages(msgs, ids)
 		    await interaction.reply({content: 'Messages stored', ephemeral: true});
         }
         catch(e) {
