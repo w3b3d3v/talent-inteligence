@@ -46,18 +46,6 @@ client.on('interactionCreate', async interaction => {
             await interaction.reply('Algo deu errado.');
         }
 	} 
-
-    else if (commandName == 'process') {
-        const job = require('./jobs/processJob');
-        
-        try {
-            
-        }
-
-        catch(e) {
-            console.log(e);
-        }
-    }
     
     else {
         return;

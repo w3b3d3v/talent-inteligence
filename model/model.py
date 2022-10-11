@@ -49,7 +49,3 @@ if output_dir is not None:
     ner_model.meta['name'] = "Entity Extractor" # rename model
     ner_model.to_disk(output_dir)
     print("Saved model to", output_dir)
-
-doc = ner_model('Fala pessoal, meu nome é Gustavo mas podem me chamar de Gusta. Tenho 26 anos, sou baiano e amo programar. Atualmente trabalho com desenvolvimento de apps (React/React Native)')
-for ent in doc.ents:
-    print(ent.label_, ent.text)
