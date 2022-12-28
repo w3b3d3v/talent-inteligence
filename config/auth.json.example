@@ -1,6 +1,0 @@
-{
-    "email": "email of the discord account here if using a user account",
-    "password": "password of the discord account here if using a user account",
-    "bot_token": "bot token if using a bot account",
-    "client_id": "client id if using a bot account and you want people to be able to invite it to their server"
-}
