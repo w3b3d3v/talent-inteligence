@@ -1,7 +1,2 @@
 .env
-/node_modules/
-
-
-/config/auth.json
-
-.db
+/venv
