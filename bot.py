@@ -4,6 +4,8 @@ from dotenv import load_dotenv
 import os
 from typing import List
 from model import Model
+from database import Database
+
 load_dotenv()
 
 async def processMessagesOnChannel(discord_channel_id: str, msg_limit: int) -> List[str]:
@@ -12,6 +14,10 @@ async def processMessagesOnChannel(discord_channel_id: str, msg_limit: int) -> L
     model = Model(prompts=messages)
     predictions = model.predict_all()
     return predictions
+
+def setup_database(db_file):
+    db = Database(db_file=db_file)
+    return db;
 
 intents = discord.Intents.default()
 intents.message_content = True
