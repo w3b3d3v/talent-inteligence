@@ -2,21 +2,31 @@
 import discord
 from dotenv import load_dotenv
 import os
-from typing import List
+from typing import List, Dict
 from model import Model
 from database import Database
 
 load_dotenv()
 
 async def processMessagesOnChannel(channel: str, msg_limit: int) -> List[str]:
-    messages = [message.content async for message in channel.history(limit=msg_limit)]
-    model = Model(prompts=messages)
+    messages = [(message.content, message.author.id) async for message in channel.history(limit=msg_limit)]
+    prompts = [message[0] for message in messages]
+    ids = [message[1] for message in messages]
+    model = Model(prompts=prompts)
     predictions = model.predict_all()
-    return predictions
+    return zip(ids, predictions)
 
 def setup_database(db_file):
     db = Database(db_file=db_file)
     return db;
+
+def store_predictions(db, predictions: List):
+    conn = db.create_connection()
+    db.create_predictions_table(conn)
+    for user_id, prediction in predictions:
+        print(user_id, prediction)
+        db.insert_prediction(conn, (user_id, prediction[1]["job"], prediction[1]["techs"]))
+
 async def process_message(content: str) -> List[str]:
     model = Model(prompts=content)
     predictions = model.predict_all()
@@ -44,7 +54,6 @@ async def on_message(message):
         return
     if message.content.startswith('!model'):
         args = message.content.split(' ')
-        print(args)
         if len(args) == 1:
             await message.channel.send('Essa mensagem não é um comando.')
             return
@@ -54,11 +63,13 @@ async def on_message(message):
                 await message.channel.send('Não consegui encontrar um canal com esse Id.')
 
             predictions = await processMessagesOnChannel(channel, int(args[3]))
-            await message.channel.send(predictions)
+
+            db = setup_database("predictions.sqlite")
+            store_predictions(db, predictions)
     else:
         print(f'processing message {message.id} on channel {message.channel.id}')
         preds = await process_message([message.content])
-        await message.channel.send(preds)
+        print(preds)
         
 
 client.run(os.getenv("BOT_TOKEN"))

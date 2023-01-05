@@ -23,7 +23,8 @@ class Model:
       frequency_penalty=0.8,
       presence_penalty=0
     )
-    return response["choices"][0]["text"]
+    text = response["choices"][0]["text"]
+    return text.replace("\n", "").replace("Trabalho do usuário: ", "")
   
   def predict_techs(self, prompt: str) -> str:
     base_prompt = "Extraia as tecnologias:\n"
@@ -38,7 +39,10 @@ class Model:
       frequency_penalty=0.8,
       presence_penalty=0
     )
-    return response["choices"][0]["text"]
+    print(response)
+    text = response["choices"][0]["text"]
+    return text.replace("\n", "").replace(" ", "")
+
 
   def print_responses(self, responses: List) -> None:
     i = 1
@@ -46,15 +50,15 @@ class Model:
       print(f"Prompt #{i}")
       i += 1
       print(f"Prompt: {response[0]}")
-      print(f"{response[1][0]}")
-      print(f"{response[1][1]}")
+      print(f"{response[1]['techs']}")
+      print(f"{response[1]['job']}")
   
   def predict_all(self) -> List:
     results = []
     for prompt in self.prompts:
       techs = self.predict_techs(prompt=prompt)
       job = self.predict_job(prompt=prompt)
-      results.append([prompt, (techs, job)])
+      results.append([prompt, {"techs": techs.replace("Tecnologias:", ""), "job": job.replace("Trabalho do usuário:", "")}])
     self.print_responses(results)
     return results
 

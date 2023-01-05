@@ -16,27 +16,27 @@ class Database:
             print(e)
             return
 
-def create_predictions_table(self, conn):
-    table_sql = """CREATE TABLE IF NOT EXISTS predictions (id integer PRIMARY KEY, user_id integer NOT NULL UNIQUE, job text, techs text);"""
-    if not conn:
-        return False
-    try:
-        c = conn.cursor()
-        c.execute(table_sql)
-        return True
-    except Error as e:
-        print(e)
-        return False
+    def create_predictions_table(self, conn):
+        table_sql = """CREATE TABLE IF NOT EXISTS predictions (id integer PRIMARY KEY, user_id integer NOT NULL, job text, techs text);"""
+        if not conn:
+            return False
+        try:
+            c = conn.cursor()
+            c.execute(table_sql)
+            return True
+        except Error as e:
+            print(e)
+            return False
 
-def insert_prediction(self, conn, prediction):
-    insert_sql = """INSERT INTO predictions (user_id, job, techs) VALUES (?, ?, ?);"""
-    
-    try:
-        c = conn.cursor()
-        c.execute(insert_sql, prediction)
-        c.commit()
-        return c.lastrowid
+    def insert_prediction(self, conn, prediction):
+        insert_sql = """INSERT INTO predictions (user_id, job, techs) VALUES (?, ?, ?);"""
+        
+        try:
+            c = conn.cursor()
+            c.execute(insert_sql, prediction)
+            conn.commit()
+            return c.lastrowid
 
-    except Error as e:
-        print(e)
-        return False
+        except Error as e:
+            print(e)
+            return False
