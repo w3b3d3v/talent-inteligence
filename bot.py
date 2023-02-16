@@ -2,35 +2,35 @@
 import discord
 from dotenv import load_dotenv
 import os
-from typing import List, Dict
-from model import Model
-from database import Database
+from typing import List
+from matcher import Matcher
 
 load_dotenv()
+users = []
+last_created_at = [None]
 
 async def processMessagesOnChannel(channel: str, msg_limit: int) -> List[str]:
-    messages = [(message.content, message.author.id) async for message in channel.history(limit=msg_limit)]
-    prompts = [message[0] for message in messages]
-    ids = [message[1] for message in messages]
-    model = Model(prompts=prompts)
-    predictions = model.predict_all()
-    return zip(ids, predictions)
+    data = []
+    i = 1
+    async for message in channel.history(limit=msg_limit, oldest_first=True, after=last_created_at[-1]):
+        if i == msg_limit:
+            last_created_at.append(message.created_at)
+        data.append((message.content, message.author.id, message.author.name))
+        i += 1
+    
+    matcher = Matcher()
+    prompts = [message[0] for message in data]
+    ids = [user_id[1] for user_id in data]
+    names = [name[2] for name in data]
 
-def setup_database(db_file):
-    db = Database(db_file=db_file)
-    return db;
+    for prompt, discord_id, name in zip(prompts, ids, names):
+        new_user = matcher.build_user(prompt, name, discord_id)
+        users.append(new_user)
 
-def store_predictions(db, predictions: List):
-    conn = db.create_connection()
-    db.create_predictions_table(conn)
-    for user_id, prediction in predictions:
-        print(user_id, prediction)
-        db.insert_prediction(conn, (user_id, prediction[1]["job"], prediction[1]["techs"]))
-
-async def process_message(content: str) -> List[str]:
-    model = Model(prompts=content)
-    predictions = model.predict_all()
-    return predictions
+async def process_message(prompt: str, name: str, discord_id: str) -> List[str]:
+    matcher = Matcher()
+    new_user = matcher.build_user(prompt, name, discord_id)
+    return new_user
 
 async def get_channel_by_id(channel_id: str):
     try:
@@ -52,7 +52,7 @@ async def on_ready():
 async def on_message(message):
     if message.author == client.user:
         return
-    if message.content.startswith('!model'):
+    if message.content.startswith('!matcher'):
         args = message.content.split(' ')
         if len(args) == 1:
             await message.channel.send('Essa mensagem não é um comando.')
@@ -62,15 +62,9 @@ async def on_message(message):
             if not channel:
                 await message.channel.send('Não consegui encontrar um canal com esse Id.')
 
-            predictions = await processMessagesOnChannel(channel, int(args[3]))
-
-            db = setup_database("predictions.sqlite")
-            store_predictions(db, predictions)
+            await processMessagesOnChannel(channel, int(args[3]))
     else:
-        print(f'processing message {message.id} on channel {message.channel.id}')
-        preds = await process_message([message.content])
-        print(preds)
-        
+        user = await process_message(message.content, message.author.name, message.author.id)
 
 client.run(os.getenv("BOT_TOKEN"))
 
