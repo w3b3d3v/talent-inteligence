@@ -5,6 +5,7 @@ import os
 from typing import List, Dict
 from model import Model
 from database import Database
+from discord.ext import commands
 
 load_dotenv()
 
@@ -13,8 +14,9 @@ async def processMessagesOnChannel(channel: str, msg_limit: int) -> List[str]:
     prompts = [message[0] for message in messages]
     ids = [message[1] for message in messages]
     model = Model(prompts=prompts)
-    predictions = model.predict_all()
-    return zip(ids, predictions)
+    predictions = model.extract_from_all_prompts()
+    formated_preds = model.format_responses(responses=predictions)
+    return zip(ids, formated_preds)
 
 def setup_database(db_file):
     db = Database(db_file=db_file)
@@ -27,11 +29,6 @@ def store_predictions(db, predictions: List):
         print(user_id, prediction)
         db.insert_prediction(conn, (user_id, prediction[1]["job"], prediction[1]["techs"]))
 
-async def process_message(content: str) -> List[str]:
-    model = Model(prompts=content)
-    predictions = model.predict_all()
-    return predictions
-
 async def get_channel_by_id(channel_id: str):
     try:
         channel = await client.fetch_channel(channel_id)
@@ -41,6 +38,7 @@ async def get_channel_by_id(channel_id: str):
 
 intents = discord.Intents.default()
 intents.message_content = True
+intents.members = True
 
 client = discord.Client(intents=intents)
 
@@ -58,19 +56,31 @@ async def on_message(message):
             await message.channel.send('Essa mensagem não é um comando.')
             return
         if args[1] == 'processAll':
-            channel = await get_channel_by_id(args[2])
+            guild = await client.fetch_guild(args[2])
+            channel = await guild.fetch_channel(args[3])
+
             if not channel:
                 await message.channel.send('Não consegui encontrar um canal com esse Id.')
+                return
 
-            predictions = await processMessagesOnChannel(channel, int(args[3]))
-
-            db = setup_database("predictions.sqlite")
-            store_predictions(db, predictions)
-    else:
-        print(f'processing message {message.id} on channel {message.channel.id}')
-        preds = await process_message([message.content])
-        print(preds)
+            predictions = await processMessagesOnChannel(channel, int(args[4]))
         
+        elif args[1] == 'servers':
+            await message.channel.send(f'Estamos em {len(client.guilds)} servidores')
+            msg_str = ''
+            for guild in client.guilds:
+                msg_str += f'{guild.name}\n'
+            await message.channel.send(msg_str)
+        
+        elif args[1] == 'permissions':
+            guild = await client.fetch_guild(args[2])
+            print(guild)
+            me = await guild.fetch_member(str(977251314641801226))
+            print(me.guild_permissions.text())
+            
+    else:
+        print(message.content)
+
 
 client.run(os.getenv("BOT_TOKEN"))
 
