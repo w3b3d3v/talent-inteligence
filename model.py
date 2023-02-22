@@ -35,6 +35,7 @@ class Model:
       for response in responses:
         response = json.loads(str(response.choices[0]).replace("\n", ""))["text"]
         formated_responses.append(response)
+        formated_responses = [formated_response.replace("\n", "") for formated_response in formated_responses]
       print("Formated responses correctly")
       return formated_responses
     except Exception as e:
