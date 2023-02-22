@@ -4,7 +4,6 @@ from dotenv import load_dotenv
 import os
 from typing import List, Dict
 from model import Model
-from database import Database
 from discord.ext import commands
 
 load_dotenv()
@@ -64,6 +63,7 @@ async def on_message(message):
                 return
 
             predictions = await processMessagesOnChannel(channel, int(args[4]))
+
         
         elif args[1] == 'servers':
             await message.channel.send(f'Estamos em {len(client.guilds)} servidores')
