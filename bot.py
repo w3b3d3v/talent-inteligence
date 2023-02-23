@@ -1,32 +1,29 @@
-
+import datetime
+import dateStore
 import discord
 from dotenv import load_dotenv
 import os
 from typing import List, Dict
 from model import Model
-from discord.ext import commands
 
 load_dotenv()
 
-async def processMessagesOnChannel(channel: str, msg_limit: int) -> List[str]:
-    messages = [(message.content, message.author.id) async for message in channel.history(limit=msg_limit)]
+async def processMessagesOnChannel(channel: str, msg_limit: int, after: datetime.datetime = None) -> List[str]:
+    messages = [(message.content, message.author.id, message.created_at) async for message in channel.history(limit=msg_limit, oldest_first=True, after=after)]
     prompts = [message[0] for message in messages]
     ids = [message[1] for message in messages]
+    last_created_at = dateStore.LastDate(messages[-1][-1])
+    dateStore.save_last_date(last_created_at.last_date)
     model = Model(prompts=prompts)
     predictions = model.extract_from_all_prompts()
     formated_preds = model.format_responses(responses=predictions)
-    return zip(ids, formated_preds)
+    json_preds = model.to_json(formated_preds)
+    json_preds_with_id = []
+    for pred, user_id in zip(json_preds, ids):
+        pred["discord_user_id"] = user_id
+        json_preds_with_id.append(pred)
+    return json_preds_with_id
 
-def setup_database(db_file):
-    db = Database(db_file=db_file)
-    return db;
-
-def store_predictions(db, predictions: List):
-    conn = db.create_connection()
-    db.create_predictions_table(conn)
-    for user_id, prediction in predictions:
-        print(user_id, prediction)
-        db.insert_prediction(conn, (user_id, prediction[1]["job"], prediction[1]["techs"]))
 
 async def get_channel_by_id(channel_id: str):
     try:
@@ -62,8 +59,9 @@ async def on_message(message):
                 await message.channel.send('Não consegui encontrar um canal com esse Id.')
                 return
 
-            predictions = await processMessagesOnChannel(channel, int(args[4]))
-
+            last_date = dateStore.load_last_date()
+            predictions = await processMessagesOnChannel(channel, int(args[4]), last_date)
+            print(predictions)
         
         elif args[1] == 'servers':
             await message.channel.send(f'Estamos em {len(client.guilds)} servidores')
@@ -79,7 +77,7 @@ async def on_message(message):
             print(me.guild_permissions.text())
             
     else:
-        print(message.content)
+        pass
 
 
 client.run(os.getenv("BOT_TOKEN"))
