@@ -40,7 +40,14 @@ class Model:
     return formated
   
   def to_json(self, responses: List) -> List:
-    return [json.loads(response) for response in responses]
+    complete = []
+    for res in responses:
+      try:
+        complete.append(json.loads(res))
+      except Exception as e:
+        print(e)
+        pass
+    return complete
 
   def format_responses(self, responses: List) -> List[Dict]:
     formated_responses = []
