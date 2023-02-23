@@ -29,6 +29,19 @@ class Model:
     print("extracted from prompts correctly")
     return responses
   
+  def remove_characters(self, responses: List) -> List:
+    formated = []
+    for response in responses:
+      response = response.replace(".", "")
+      response = response.replace("/", "")
+      response = response.replace("-", "")
+      response = response.replace("_", "")
+      formated.append(response)
+    return formated
+  
+  def to_json(self, responses: List) -> List:
+    return [json.loads(response) for response in responses]
+
   def format_responses(self, responses: List) -> List[Dict]:
     formated_responses = []
     try:
@@ -36,8 +49,9 @@ class Model:
         response = json.loads(str(response.choices[0]).replace("\n", ""))["text"]
         formated_responses.append(response)
         formated_responses = [formated_response.replace("\n", "") for formated_response in formated_responses]
+      formated = self.remove_characters(formated_responses)
       print("Formated responses correctly")
-      return formated_responses
+      return formated
     except Exception as e:
       print(e)
       return []
