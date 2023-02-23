@@ -5,6 +5,7 @@ from dotenv import load_dotenv
 import os
 from typing import List, Dict
 from model import Model
+import strapi
 
 load_dotenv()
 
@@ -24,6 +25,9 @@ async def processMessagesOnChannel(channel: str, msg_limit: int, after: datetime
         json_preds_with_id.append(pred)
     return json_preds_with_id
 
+def store_predictions(predictions: List):
+    api = strapi.Api(predictions=predictions)
+    api.insert_predictions()
 
 async def get_channel_by_id(channel_id: str):
     try:
@@ -62,6 +66,7 @@ async def on_message(message):
             last_date = dateStore.load_last_date()
             predictions = await processMessagesOnChannel(channel, int(args[4]), last_date)
             print(predictions)
+            store_predictions(predictions=predictions)
         
         elif args[1] == 'servers':
             await message.channel.send(f'Estamos em {len(client.guilds)} servidores')
