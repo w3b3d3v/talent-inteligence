@@ -4,7 +4,9 @@ import json
 from dotenv import load_dotenv
 import os
 
-API_TOKEN = os.getenv("API_TOKEN")
+load_dotenv()
+
+API_TOKEN = os.getenv("STRAPI_API_TOKEN")
 HEADERS = {
     "Authorization": f"bearer {API_TOKEN}"
 }
@@ -17,8 +19,7 @@ POST_HEADERS = {
 class Api:
     def __init__(self, predictions: List = []) -> None:
         self.predictions = predictions
-        self.base_api_url = "http://localhost:1337/api/"
-
+        self.base_api_url = os.getenv("BASE_API_URL")
     def insert_predictions(self):
         for prediction in self.predictions:
             job = "_".join(prediction["job"])
@@ -43,5 +44,5 @@ class Api:
                 print("inserted")
     
     def get_predictions(self):
-        req = requests.get(url=f"{self.base_api_url}users-data", headers=HEADERS)
-        print(req.text)
+        req = requests.get(url=f"{self.base_api_url}users-data?populate=*", headers=HEADERS)
+        return req.text
