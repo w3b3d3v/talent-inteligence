@@ -3,7 +3,7 @@ import dateStore
 import discord
 from dotenv import load_dotenv
 import os
-from typing import List, Dict
+from typing import List
 from model import Model
 import strapi
 
@@ -11,18 +11,26 @@ load_dotenv()
 
 async def processMessagesOnChannel(channel: str, msg_limit: int, after: datetime.datetime = None) -> List[str]:
     messages = [(message.content, message.author.id, message.created_at) async for message in channel.history(limit=msg_limit, oldest_first=True, after=after)]
+
     prompts = [message[0] for message in messages]
     ids = [message[1] for message in messages]
     last_created_at = dateStore.LastDate(messages[-1][-1])
+
     dateStore.save_last_date(last_created_at.last_date)
+
     model = Model(prompts=prompts)
     predictions = model.extract_from_all_prompts()
     formated_preds = model.format_responses(responses=predictions)
     json_preds = model.to_json(formated_preds)
+    result = insert_discord_id_in_json(json_preds, ids)
+    return result
+    
+def insert_discord_id_in_json(json_preds: List, ids: List):
     json_preds_with_id = []
     for pred, user_id in zip(json_preds, ids):
         pred["discord_user_id"] = user_id
         json_preds_with_id.append(pred)
+
     return json_preds_with_id
 
 def store_predictions(predictions: List):
@@ -65,7 +73,6 @@ async def on_message(message):
 
             last_date = dateStore.load_last_date()
             predictions = await processMessagesOnChannel(channel, int(args[4]), last_date)
-            print(predictions)
             store_predictions(predictions=predictions)
         
         elif args[1] == 'servers':
@@ -79,7 +86,7 @@ async def on_message(message):
             guild = await client.fetch_guild(args[2])
             print(guild)
             me = await guild.fetch_member(str(977251314641801226))
-            print(me.guild_permissions.text())
+            await message.channel.send(me.guild_permissions.text())
             
     else:
         pass
