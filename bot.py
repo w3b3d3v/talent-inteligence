@@ -84,7 +84,6 @@ async def on_message(message):
         
         elif args[1] == 'permissions':
             guild = await client.fetch_guild(args[2])
-            print(guild)
             me = await guild.fetch_member(str(977251314641801226))
             await message.channel.send(me.guild_permissions.text())
             
