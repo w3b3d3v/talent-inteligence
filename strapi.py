@@ -1,5 +1,5 @@
 import requests
-from typing import List
+from typing import List, Dict
 import json
 from dotenv import load_dotenv
 import os
@@ -24,18 +24,21 @@ class Api:
         for prediction in self.predictions:
             job = "_".join(prediction["job"])
 
-            if prediction["name"]:
-                name = prediction["name"][0]
-            else:
-                name = ""
+            name = self._get_prediction_in_list(prediction_key="name", prediction=prediction)
 
+            city = self._get_prediction_in_list(prediction_key="city", prediction=prediction)
+
+            state = self._get_prediction_in_list(prediction_key="state", prediction=prediction)
+            
             techs = "_".join(prediction["techs"])
 
-            req = requests.post(url=f"{self.base_api_url}users-data", headers=POST_HEADERS, data=json.dumps(
+            req = requests.post(url=f"{self.base_api_url}talents", headers=POST_HEADERS, data=json.dumps(
                 {
                    "data": {
                     "jobs": job,
                     "name": name,
+                    "state": state,
+                    "city": city,
                     "techs": techs
                    } 
                 }
@@ -44,5 +47,9 @@ class Api:
                 print("inserted")
     
     def get_predictions(self):
-        req = requests.get(url=f"{self.base_api_url}users-data?populate=*", headers=HEADERS)
+        req = requests.get(url=f"{self.base_api_url}talents?populate=*", headers=HEADERS)
         return req.text
+
+    def _get_prediction_in_list(self, prediction_key: str, prediction: Dict):
+        return prediction[prediction_key][0] if prediction[prediction_key] else ""
+        
