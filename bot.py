@@ -6,8 +6,12 @@ import os
 from typing import List
 from model import Model
 import strapi
+from matcher import Matcher
 
 load_dotenv()
+
+TECHS = []
+JOBS = []
 
 async def processMessagesOnChannel(channel: str, msg_limit: int, after: datetime.datetime = None) -> List[str]:
     messages = [(message.content, message.author.id, message.created_at) async for message in channel.history(limit=msg_limit, oldest_first=True, after=after)]
@@ -16,14 +20,24 @@ async def processMessagesOnChannel(channel: str, msg_limit: int, after: datetime
     ids = [message[1] for message in messages]
     last_created_at = dateStore.LastDate(messages[-1][-1])
 
+    matcher = Matcher(jobs=JOBS, techs=TECHS)
+    matcher_results = []
+    for prompt, user_id in zip(prompts, ids):
+        matched = matcher.match_prompt(prompt=prompt)
+        formated = matcher.to_json(matches=matched)
+        formated["discord_id"] = user_id
+        matcher.last_id_index = ids.index(user_id)
+        matcher_results.append(formated)
+    
+    ai_prompts = matcher.get_ai_prompts()
     dateStore.save_last_date(last_created_at.last_date)
 
-    model = Model(prompts=prompts)
+    model = Model(prompts=ai_prompts)
     predictions = model.extract_from_all_prompts()
     formated_preds = model.format_responses(responses=predictions)
     json_preds = model.to_json(formated_preds)
-    result = insert_discord_id_in_json(json_preds, ids)
-    return result
+    result_model = insert_discord_id_in_json(json_preds, ids[matcher.last_id_index:])
+    return result_model + matcher_results
     
 def insert_discord_id_in_json(json_preds: List, ids: List):
     json_preds_with_id = []
