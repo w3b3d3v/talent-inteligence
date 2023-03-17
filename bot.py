@@ -7,11 +7,15 @@ from typing import List
 from model import Model
 import strapi
 from matcher import Matcher
+import requests
+import json
 
 load_dotenv()
 
-TECHS = []
-JOBS = []
+NAME = ["rafael", "lorenzo", "daniel", "ana", "anna", "melk"]
+UF = ["rs", "rio grande do sul", "sp", "são paulo", "rj", "rio de janeiro"]
+TECHS = ["angular", "linguagem c", "c#", "c++", "clojure", "dart", "elixir", "elm", "erlang", "f#", "ganache", "go", "graphql", "hardhat", "haskell", "java", "javascript", "kind", "kotlin", "meteor.js", "mongodb", "mysql", "nextjs", "node", "postgresql", "python", "react", "ruby", "rust", "scala", "solidity", "swift", "teal", "truffle", "typescript", "vue", "vyper"]
+JOBS = ["founder", "engenheiro front end", "engenheiro back end", "engenheiro full stack", "engenheiro solidity", "engenheiro solana", "engenheiro full stack web3", "engenheiro de dados", "engenheiro de jogos", "devops", "product manager", "product designer", "ui/ux", "community manager", "marketing / growth", "devrel", "escritor técnico", "contribuinte de daos"]
 
 async def processMessagesOnChannel(channel: str, msg_limit: int, after: datetime.datetime = None) -> List[str]:
     messages = [(message.content, message.author.id, message.created_at) async for message in channel.history(limit=msg_limit, oldest_first=True, after=after)]
@@ -20,10 +24,12 @@ async def processMessagesOnChannel(channel: str, msg_limit: int, after: datetime
     ids = [message[1] for message in messages]
     last_created_at = dateStore.LastDate(messages[-1][-1])
 
-    matcher = Matcher(jobs=JOBS, techs=TECHS)
+    matcher = Matcher(jobs=JOBS, techs=TECHS, names=NAME, uf=UF)
     matcher_results = []
     for prompt, user_id in zip(prompts, ids):
         matched = matcher.match_prompt(prompt=prompt)
+        if not matched:
+            continue
         formated = matcher.to_json(matches=matched)
         formated["discord_id"] = user_id
         matcher.last_id_index = ids.index(user_id)
@@ -32,7 +38,7 @@ async def processMessagesOnChannel(channel: str, msg_limit: int, after: datetime
     ai_prompts = matcher.get_ai_prompts()
     dateStore.save_last_date(last_created_at.last_date)
 
-    model = Model(prompts=ai_prompts)
+    model = Model(prompts=ai_prompts, techs_list=TECHS, jobs_list=JOBS)
     predictions = model.extract_from_all_prompts()
     formated_preds = model.format_responses(responses=predictions)
     json_preds = model.to_json(formated_preds)
@@ -67,6 +73,17 @@ client = discord.Client(intents=intents)
 @client.event
 async def on_ready():
     print(f'We have logged in as {client.user}')
+
+@client.event
+async def on_member_join(member):
+    url = None
+    headers = None
+    user_obj = {
+        "discordId": member.id,
+        "name": member.name,
+        "joined_at": member.joined_at,
+    }
+    requests.post(url=url, headers=headers, json=json.dumps(user_obj))
 
 @client.event
 async def on_message(message):
