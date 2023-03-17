@@ -1,4 +1,5 @@
 import os
+import re
 import json
 import openai
 from typing import List, Dict
@@ -34,11 +35,8 @@ class Model:
   def remove_characters(self, responses: List) -> List:
     formated = []
     for response in responses:
-      response = response.replace(".", "")
-      response = response.replace("/", "")
-      response = response.replace("-", "")
-      response = response.replace("_", "")
-      formated.append(response)
+      res = re.sub('[\., \,, \/, \-, _]', '', response)
+      formated.append(res)
     return formated
   
   def to_json(self, responses: List) -> List:
