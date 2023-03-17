@@ -12,6 +12,8 @@ class Matcher:
     def match_prompt(self, prompt: str) -> Tuple:
         matched_techs = []
         matched_jobs = []
+        matched_name = ""
+        matched_uf = ""
 
         for tech in self.techs:
             if tech in prompt.lower():
@@ -30,9 +32,10 @@ class Matcher:
                 matched_uf = uf
                 
         
-        if len(matched_techs) == 0 and len(matched_jobs) == 0:
+        if len(matched_techs) == 0 or len(matched_jobs) == 0:
             self.ai_prompts.append(prompt)
-        return (matched_jobs, matched_techs, matched_name or None, matched_uf or None)
+            return ()
+        return (matched_jobs, matched_techs, matched_name or "", matched_uf or "")
     
     def to_json(self, matches: Tuple) -> Dict:
         try:
