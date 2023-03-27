@@ -35,7 +35,7 @@ class Model:
   def remove_characters(self, responses: List) -> List:
     formated = []
     for response in responses:
-      res = re.sub('[\., \,, \/, \-, _]', '', response)
+      res = re.sub(r'[\., \,, \/, \-, _]', '', response)
       formated.append(res)
     return formated
   
