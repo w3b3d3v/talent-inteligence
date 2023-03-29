@@ -7,8 +7,9 @@ FILENAME = "test.pkl"
 
 
 def test_last_date_creation():
-    last_date = LastDate(datetime.datetime.now())
-    assert last_date.last_date == datetime.datetime.now()
+    now_ = datetime.datetime.now()
+    last_date = LastDate()
+    assert last_date.last_date == now_
 
 
 def test_last_date_not_null():
