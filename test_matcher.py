@@ -1,4 +1,4 @@
-import pytest
+
 from matcher import Matcher
 
 matcher = Matcher(
@@ -8,9 +8,11 @@ matcher = Matcher(
     uf=["rio grande do sul", "são paulo"]
 )
 
+
 def test_ai_prompts_getter():
     ai_prompts = matcher.get_ai_prompts()
     assert type(ai_prompts) == list, "Ai_prompts should be list"
+
 
 def test_match_prompt():
     prompt = "Meu nome é rafael, sou desenvolvedor e utilizo javascript. Moro no rio grande do sul."
@@ -19,12 +21,13 @@ def test_match_prompt():
     assert type(match[0]) == list, "matched jobs should be a list"
     assert type(match[1]) == list, "matched techs should be a list"
 
+
 def test_to_json():
     matches = (["desenvolvedor"], ["javascript"], "lorenzo", "rio grande do sul")
     json_matches = matcher.to_json(matches)
     assert json_matches == {
-        "jobs": ["desenvolvedor"], 
-        "techs": ["javascript"], 
+        "jobs": ["desenvolvedor"],
+        "techs": ["javascript"],
         "name": "lorenzo",
         "uf": "rio grande do sul"
     }, "matched object should be formated correctly"

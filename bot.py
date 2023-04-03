@@ -18,6 +18,7 @@ UF = ["rs", "rio grande do sul", "sp", "são paulo", "rj", "rio de janeiro"]
 TECHS = ["angular", "linguagem c", "c#", "c++", "clojure", "dart", "elixir", "elm", "erlang", "f#", "ganache", "go", "graphql", "hardhat", "haskell", "java", "javascript", "kind", "kotlin", "meteor.js", "mongodb", "mysql", "nextjs", "node", "postgresql", "python", "react", "ruby", "rust", "scala", "solidity", "swift", "teal", "truffle", "typescript", "vue", "vyper"]
 JOBS = ["founder", "engenheiro front end", "engenheiro back end", "engenheiro full stack", "engenheiro solidity", "engenheiro solana", "engenheiro full stack web3", "engenheiro de dados", "engenheiro de jogos", "devops", "product manager", "product designer", "ui/ux", "community manager", "marketing / growth", "devrel", "escritor técnico", "contribuinte de daos"]
 
+
 async def processMessagesOnChannel(channel: str, msg_limit: int, after: datetime.datetime = None) -> List[str]:
     messages = [(message.content, message.author.id, message.created_at) async for message in channel.history(limit=msg_limit, oldest_first=True, after=after)]
 
@@ -35,7 +36,7 @@ async def processMessagesOnChannel(channel: str, msg_limit: int, after: datetime
         formated["discord_id"] = user_id
         matcher.last_id_index = ids.index(user_id)
         matcher_results.append(formated)
-    
+
     ai_prompts = matcher.get_ai_prompts()
     dateStore.save_last_date(last_created_at.last_date)
 
@@ -45,7 +46,8 @@ async def processMessagesOnChannel(channel: str, msg_limit: int, after: datetime
     json_preds = model.to_json(formated_preds)
     result_model = insert_discord_id_in_json(json_preds, ids[matcher.last_id_index:])
     return result_model + matcher_results
-    
+
+
 def insert_discord_id_in_json(json_preds: List, ids: List):
     json_preds_with_id = []
     for pred, user_id in zip(json_preds, ids):
@@ -54,9 +56,11 @@ def insert_discord_id_in_json(json_preds: List, ids: List):
 
     return json_preds_with_id
 
+
 def store_predictions(predictions: List):
     api = strapi.Api(predictions=predictions)
     api.insert_predictions()
+
 
 async def get_channel_by_id(channel_id: str):
     try:
@@ -65,20 +69,24 @@ async def get_channel_by_id(channel_id: str):
     except discord.errors.HTTPException:
         return
 
+
 def check_job_announcement(message: str):
     job_checker = JobAnnounceChecker()
     is_job = job_checker.check_message(message=message)
     return is_job
-    
+
+
 intents = discord.Intents.default()
 intents.message_content = True
 intents.members = True
 
 client = discord.Client(intents=intents)
 
+
 @client.event
 async def on_ready():
     print(f'We have logged in as {client.user}')
+
 
 @client.event
 async def on_member_join(member):
@@ -90,6 +98,7 @@ async def on_member_join(member):
         "joined_at": member.joined_at,
     }
     requests.post(url=url, headers=headers, json=json.dumps(user_obj))
+
 
 @client.event
 async def on_message(message):
@@ -111,25 +120,23 @@ async def on_message(message):
             last_date = dateStore.load_last_date()
             predictions = await processMessagesOnChannel(channel, int(args[4]), last_date)
             store_predictions(predictions=predictions)
-        
+
         elif args[1] == 'servers':
             await message.channel.send(f'Estamos em {len(client.guilds)} servidores')
             msg_str = ''
             for guild in client.guilds:
                 msg_str += f'{guild.name}\n'
             await message.channel.send(msg_str)
-        
+
         elif args[1] == 'permissions':
             guild = await client.fetch_guild(args[2])
             me = await guild.fetch_member(str(977251314641801226))
             await message.channel.send(me.guild_permissions.text())
-            
+
     else:
         is_job_announcement = check_job_announcement(message=message.content)
-        if(is_job_announcement):
+        if is_job_announcement:
             await message.reply('<@&1086370714354995342>')
 
 
 client.run(os.getenv("BOT_TOKEN"))
-
-
