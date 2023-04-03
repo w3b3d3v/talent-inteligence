@@ -69,11 +69,13 @@ async def get_channel_by_id(channel_id: str):
     except discord.errors.HTTPException:
         return
 
+
 def check_job_announcement(message: str):
     job_checker = JobAnnounceChecker()
     is_job = job_checker.check_message(message=message)
     return is_job
-    
+
+
 intents = discord.Intents.default()
 intents.message_content = True
 intents.members = True
@@ -133,7 +135,7 @@ async def on_message(message):
 
     else:
         is_job_announcement = check_job_announcement(message=message.content)
-        if(is_job_announcement):
+        if is_job_announcement:
             await message.reply('<@&1086370714354995342>')
 
 

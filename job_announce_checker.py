@@ -5,6 +5,7 @@ import openai
 import json
 load_dotenv()
 
+
 class JobAnnounceChecker:
     def __init__(self) -> None:
         openai.api_key = os.getenv("OPENAI_API_KEY")
@@ -17,9 +18,9 @@ class JobAnnounceChecker:
             "Content-Type": "application/json",
             "Authorization": f"{os.getenv('API_KEY')}"
         }
-        
+
         req_body = {
-        "prompt": final_prompt
+            "prompt": final_prompt
         }
         res = requests.post(url="https://data-miners.onrender.com/predict", data=json.dumps(req_body), headers=headers)
 
