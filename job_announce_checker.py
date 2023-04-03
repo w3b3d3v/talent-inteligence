@@ -15,17 +15,12 @@ class JobAnnounceChecker:
         final_prompt = self.base_prompt + message
         headers = {
             "Content-Type": "application/json",
-            "Authorization": f"Bearer {os.getenv('OPENAI_API_KEY')}"
+            "Authorization": f"{os.getenv('API_KEY')}"
         }
-        print(type(headers))
-        res = requests.post(
-            "https://api.openai.com/v1/chat/completions",
-            headers=headers,
-            data=json.dumps({
-            "model": "gpt-3.5-turbo",
-            "messages": [{"role": "user", "content": final_prompt}],
-            "temperature": 0.2
-            })
-        )
-        res = res.json()["choices"][0]["message"]["content"]
-        return True if res == 'true' else False
+        
+        req_body = {
+        "prompt": final_prompt
+        }
+        res = requests.post(url="https://data-miners.onrender.com/predict", data=json.dumps(req_body), headers=headers)
+
+        return True if res == 'spam' else False
