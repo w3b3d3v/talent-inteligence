@@ -8,6 +8,7 @@ from model import Model
 import strapi
 from matcher import Matcher
 from job_announce_checker import JobAnnounceChecker
+from exceptions import InsufficientCommandArguments, CloudFunctionUrlNotFound
 import requests
 import json
 
@@ -82,8 +83,11 @@ async def on_ready():
 
 @client.event
 async def on_member_join(member):
-    url = None
+    url = os.getenv("CLOUD_FUNCTION_URL")
     headers = None
+    if url is None:
+        raise CloudFunctionUrlNotFound("Cloud function url not found on envs")
+
     user_obj = {
         "discordId": member.id,
         "name": member.name,
@@ -101,8 +105,15 @@ async def on_message(message):
             await message.channel.send('Essa mensagem não é um comando.')
             return
         if args[1] == 'processAll':
-            guild = await client.fetch_guild(args[2])
-            channel = await guild.fetch_channel(args[3])
+            if(len(args) < 5):
+                await message.channel.send('Argumentos insuficientes para o comando processAll')
+                raise InsufficientCommandArguments("Insufficient arguments for command processAll")
+            try:
+                guild = await client.fetch_guild(args[2])
+                channel = await guild.fetch_channel(args[3])
+            except Exception as e:
+                await message.channel.send('Não consegui encontrar um servidor ou canal com esses Ids.')
+                return
 
             if not channel:
                 await message.channel.send('Não consegui encontrar um canal com esse Id.')
@@ -121,13 +132,15 @@ async def on_message(message):
         
         elif args[1] == 'permissions':
             guild = await client.fetch_guild(args[2])
-            me = await guild.fetch_member(str(977251314641801226))
+            me = await guild.fetch_member(str(os.getenv("BOT_DISCORD_ID"))))
             await message.channel.send(me.guild_permissions.text())
             
     else:
-        is_job_announcement = check_job_announcement(message=message.content)
-        if(is_job_announcement):
-            await message.reply('<@&1086370714354995342>')
+        #is_job_announcement = check_job_announcement(message=message.content)
+        #if(is_job_announcement):
+            #await message.reply('<@&1086370714354995342>')
+        return
+        
 
 
 client.run(os.getenv("BOT_TOKEN"))
