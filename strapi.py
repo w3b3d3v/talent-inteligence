@@ -53,7 +53,7 @@ class Api:
         return req.text
     
     def get_tech_id_by_name(self, tech_name: str, tech_index: int=0):
-        req = requests.get(url=f"{self.base_api_url}teches?name={tech_name}", headers=HEADERS)
+        req = requests.get(url=f"{self.base_api_url}techs?name={tech_name}", headers=HEADERS)
         return req.json()["data"][tech_index]["id"]
 
     def get_job_id_by_name(self, job_name: str, job_index: int=0):
