@@ -29,5 +29,6 @@ def test_to_json():
         "jobs": ["desenvolvedor"],
         "techs": ["javascript"],
         "name": "lorenzo",
-        "uf": "rio grande do sul"
+        "uf": "rio grande do sul",
+        "city": ""
     }, "matched object should be formated correctly"
