@@ -23,24 +23,25 @@ class Api:
 
     def insert_predictions(self):
         for prediction in self.predictions:
-            job = "_".join(prediction["job"])
+            job_ids = [self.get_job_id_by_name(job_name=job, job_index=index) for index, job in enumerate(prediction["jobs"])]
 
-            name = self._get_prediction_in_list(prediction_key="name", prediction=prediction)
+            tech_ids = [self.get_tech_id_by_name(tech_name=tech, tech_index=index) for index, tech in enumerate(prediction["techs"])]
 
-            city = self._get_prediction_in_list(prediction_key="city", prediction=prediction)
+            name = self._get_prediction_in_dict(prediction_key="name", prediction=prediction)
 
-            state = self._get_prediction_in_list(prediction_key="state", prediction=prediction)
+            city = self._get_prediction_in_dict(prediction_key="city", prediction=prediction)
 
-            techs = "_".join(prediction["techs"])
+            state = self._get_prediction_in_dict(prediction_key="uf", prediction=prediction)
 
             req = requests.post(url=f"{self.base_api_url}talents", headers=POST_HEADERS, data=json.dumps(
                 {
                    "data": {
-                        "jobs": job,
+                        "jobs": job_ids,
                         "name": name,
                         "state": state,
                         "city": city,
-                        "techs": techs
+                        "teches": tech_ids,
+                        "discord_id": prediction["discord_id"]
                    }
                 }
             ))
@@ -51,5 +52,13 @@ class Api:
         req = requests.get(url=f"{self.base_api_url}talents?populate=*", headers=HEADERS)
         return req.text
 
-    def _get_prediction_in_list(self, prediction_key: str, prediction: Dict):
-        return prediction[prediction_key][0] if prediction[prediction_key] else ""
+    def get_tech_id_by_name(self, tech_name: str, tech_index: int = 0):
+        req = requests.get(url=f"{self.base_api_url}techs?name={tech_name}", headers=HEADERS)
+        return req.json()["data"][tech_index]["id"]
+
+    def get_job_id_by_name(self, job_name: str, job_index: int = 0):
+        req = requests.get(url=f"{self.base_api_url}jobs?name={job_name}", headers=HEADERS)
+        return req.json()["data"][job_index]["id"]
+
+    def _get_prediction_in_dict(self, prediction_key: str, prediction: Dict):
+        return prediction[prediction_key] if prediction[prediction_key] else ""

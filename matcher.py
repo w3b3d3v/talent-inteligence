@@ -43,7 +43,8 @@ class Matcher:
                 "jobs": matches[0],
                 "techs": matches[1],
                 "name": matches[2],
-                "uf": matches[3]
+                "uf": matches[3],
+                "city": "",
             }
         except Exception:
             return {}

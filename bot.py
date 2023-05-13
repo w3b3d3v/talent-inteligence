@@ -10,6 +10,7 @@ from matcher import Matcher
 from job_announce_checker import JobAnnounceChecker
 import requests
 import json
+import logging
 
 load_dotenv()
 
@@ -97,6 +98,7 @@ async def on_member_join(member):
         "name": member.name,
         "joined_at": member.joined_at,
     }
+    logging.log(logging.INFO, f'User {member.name} joined the server. Triggered cloud function.')
     requests.post(url=url, headers=headers, json=json.dumps(user_obj))
 
 
@@ -133,10 +135,10 @@ async def on_message(message):
             me = await guild.fetch_member(str(977251314641801226))
             await message.channel.send(me.guild_permissions.text())
 
-    else:
-        is_job_announcement = check_job_announcement(message=message.content)
-        if is_job_announcement:
-            await message.reply('<@&1086370714354995342>')
+    # else:
+        # is_job_announcement = check_job_announcement(message=message.content)
+        # if is_job_announcement:
+        #     await message.reply('<@&1086370714354995342>')
 
 
 client.run(os.getenv("BOT_TOKEN"))
