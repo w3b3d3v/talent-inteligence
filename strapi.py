@@ -22,7 +22,7 @@ class Api:
         self.base_api_url = os.getenv("BASE_API_URL")
         self.jobs = jobs
         self.techs = techs
-    
+
     def insert_jobs(self):
         try:
             for job in self.jobs:
@@ -37,7 +37,7 @@ class Api:
                     print("inserted")
         except Exception as e:
             print(e)
-    
+
     def insert_techs(self):
         try:
             for tech in self.techs:
