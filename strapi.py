@@ -17,9 +17,41 @@ POST_HEADERS = {
 
 
 class Api:
-    def __init__(self, predictions: List = []) -> None:
+    def __init__(self, predictions: List = [], jobs: List = [], techs: List = []) -> None:
         self.predictions = predictions
         self.base_api_url = os.getenv("BASE_API_URL")
+        self.jobs = jobs
+        self.techs = techs
+    
+    def insert_jobs(self):
+        try:
+            for job in self.jobs:
+                req = requests.post(url=f"{self.base_api_url}jobs", headers=POST_HEADERS, data=json.dumps(
+                    {
+                        "data": {
+                            "name": job
+                        }
+                    }
+                ))
+                if req.status_code == 200:
+                    print("inserted")
+        except Exception as e:
+            print(e)
+    
+    def insert_techs(self):
+        try:
+            for tech in self.techs:
+                req = requests.post(url=f"{self.base_api_url}techs", headers=POST_HEADERS, data=json.dumps(
+                    {
+                        "data": {
+                            "name": tech
+                        }
+                    }
+                ))
+                if req.status_code == 200:
+                    print("inserted")
+        except Exception as e:
+            print(e)
 
     def insert_predictions(self):
         for prediction in self.predictions:
