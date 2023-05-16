@@ -59,7 +59,7 @@ def insert_discord_id_in_json(json_preds: List, ids: List):
 
 
 def store_predictions(predictions: List):
-    api = strapi.Api(predictions=predictions)
+    api = strapi.Api(predictions=predictions, jobs=JOBS, techs=TECHS)
     api.insert_predictions()
 
 
