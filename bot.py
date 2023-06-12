@@ -91,15 +91,14 @@ async def on_ready():
 
 @client.event
 async def on_member_join(member):
-    url = None
-    headers = None
-    user_obj = {
-        "discordId": member.id,
-        "name": member.name,
-        "joined_at": member.joined_at,
-    }
-    logging.log(logging.INFO, f'User {member.name} joined the server. Triggered cloud function.')
-    requests.post(url=url, headers=headers, json=json.dumps(user_obj))
+    url = f"https://us-central1-web3dev-bootcamp.cloudfunctions.net/grantDiscordRoleToNewcomer?discordId={member.id}"
+    headers = {}
+    print(f'User {member.name} joined the server. Triggered cloud function.')
+    res = requests.get(url=url, headers=headers)
+    if res.text["status"] == 200:
+        print("Granted roles to user successfully.")
+    else:
+        print("Error granting roles to user.")
 
 
 @client.event
