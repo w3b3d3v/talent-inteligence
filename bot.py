@@ -9,8 +9,6 @@ import strapi
 from matcher import Matcher
 from job_announce_checker import JobAnnounceChecker
 import requests
-import json
-import logging
 
 load_dotenv()
 
