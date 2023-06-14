@@ -3,7 +3,7 @@ import dateStore
 import discord
 from dotenv import load_dotenv
 import os
-from typing import List
+from typing import List, Dict, Any
 from model import Model
 import strapi
 from matcher import Matcher
@@ -46,7 +46,27 @@ async def processMessagesOnChannel(channel: str, msg_limit: int, after: datetime
     formated_preds = model.format_responses(responses=predictions)
     json_preds = model.to_json(formated_preds)
     result_model = insert_discord_id_in_json(json_preds, ids[matcher.last_id_index:])
-    return result_model + matcher_results
+    return matcher_results + result_model
+
+
+async def processSingleMessage(message_content: str, author_id: str) -> List[Dict[str, Any]]:
+    matcher = Matcher(jobs=JOBS, techs=TECHS, names=NAME, uf=UF)
+    matched = matcher.match_prompt(prompt=message_content)
+    if not matched:
+        return []
+
+    formated = matcher.to_json(matches=matched)
+    formated["discord_id"] = author_id
+
+    ai_prompts = matcher.get_ai_prompts()
+
+    model = Model(prompts=ai_prompts, techs_list=TECHS, jobs_list=JOBS)
+    predictions = model.extract_from_all_prompts()
+    formated_preds = model.format_responses(responses=predictions)
+    json_preds = model.to_json(formated_preds)
+
+    result_model = insert_discord_id_in_json(json_preds, [author_id])
+    return [formated] + result_model
 
 
 def insert_discord_id_in_json(json_preds: List, ids: List):
@@ -155,17 +175,10 @@ async def on_message(message):
 
             await message.channel.send(me.guild_permissions.text())
 
-    elif message.channel.id == CHANNEL_ID_TO_CHECK:
+    elif str(message.channel.id) == CHANNEL_ID_TO_CHECK:
         print("Received message from apresente-se. Processing...")
         try:
-            guild = await client.fetch_guild(WEB3DEV_GUILD_ID)
-            channel = await guild.fetch_channel(CHANNEL_ID_TO_CHECK)
-        except (discord.HTTPException, discord.InvalidData, discord.NotFound):
-            await message.channel.send('Não foi possível encontrar o servidor ou canal com os IDs fornecidos.')
-            return
-
-        try:
-            predictions = await processMessagesOnChannel(channel, num_messages, last_date)
+            predictions = await processSingleMessage(message_content=message.content, author_id=message.author.id)
             store_predictions(predictions=predictions)
             print("Messages processed and stored.")
         except Exception as e:
