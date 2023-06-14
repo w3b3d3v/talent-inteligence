@@ -178,7 +178,7 @@ async def on_message(message):
     elif str(message.channel.id) == CHANNEL_ID_TO_CHECK:
         print("Received message from apresente-se. Processing...")
         try:
-            predictions = await processSingleMessage(message_content=message.content, author_id=message.author.id)
+            predictions = await processSingleMessage(message_content=message.content, author_id=str(message.author.id))
             store_predictions(predictions=predictions)
             print("Messages processed and stored.")
         except Exception as e:
