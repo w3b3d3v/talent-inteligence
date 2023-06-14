@@ -93,7 +93,8 @@ async def on_member_join(member):
     headers = {}
     print(f'User {member.name} joined the server. Triggered cloud function.')
     res = requests.get(url=url, headers=headers)
-    if res.text["status"] == 200:
+
+    if res.status_code == 200:
         print("Granted roles to user successfully.")
     else:
         print("Error granting roles to user.")
