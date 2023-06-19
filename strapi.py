@@ -62,7 +62,7 @@ class Api:
 
             city = self._get_prediction_in_dict(prediction_key="city", prediction=prediction)
 
-            state = self._get_prediction_in_dict(prediction_key="uf", prediction=prediction)
+            state = self._get_prediction_in_dict(prediction_key="state", prediction=prediction)
             req = requests.post(url=f"{self.base_api_url}talents", headers=POST_HEADERS, data=json.dumps(
                 {
                    "data": {
@@ -71,12 +71,12 @@ class Api:
                         "state": state,
                         "city": city,
                         "techs": tech_ids,
-                        "discord_id": prediction["discord_id"]
+                        "discord_id": prediction["discord_user_id"]
                    }
                 }
             ))
             if req.status_code == 200:
-                print("inserted")
+               print("Messages processed and stored.") 
             else:
                 print(req.json())
 
