@@ -14,7 +14,7 @@ class Model:
         self.jobs_list = jobs_list
         self.techs_list = techs_list
         self.prompts = prompts
-        self.base_prompt = f"""A mensagem a seguir é um texto de apresentação. Extraia desse texto os campos: emprego, nome, cidade, estado e tecnologias. Tente encaixar as tecnologias extraídas na seguinte lista: {self.techs_list} . Tente encaixar os trabalhos extraídos na seguinte lista: {self.jobs_list} . Caso a tecnologia ou trabalho não se encaixe em nenhuma categoria, crie uma nova com o nome adequado. Retorne esses dados no formato JSON, com os rótulos: job, name, city, state, techs. job e techs devem ser listas de strings. Caso não encontre os campos especificados, deixe o atributo em branco. Retorne apenas o JSON, sem nenhum outro texto na resposta.\n"""
+        self.base_prompt = f"""A mensagem a seguir é um texto de apresentação. Extraia desse texto os campos: emprego, nome, cidade, estado e tecnologias. Tente encaixar as tecnologias extraídas na seguinte lista: {self.techs_list} . Tente encaixar os trabalhos extraídos na seguinte lista: {self.jobs_list} . Caso a tecnologia ou trabalho não se encaixe em nenhuma categoria, crie uma nova com o nome adequado. Retorne esses dados no formato JSON, com os rótulos: jobs, name, city, state, techs. job e techs devem ser listas de strings. Caso não encontre os campos especificados, deixe o atributo em branco. Retorne apenas o JSON, sem nenhum outro texto na resposta.\n"""
 
     def extract_from_all_prompts(self) -> List:
         responses = []
@@ -36,30 +36,32 @@ class Model:
     def remove_characters(self, responses: List) -> List:
         formated = []
         for response in responses:
-            res = re.sub(r'[\., \,, \/, \-, _]', '', response)
+            res = re.sub(r'[\.\-_]', '', response)
             formated.append(res)
         return formated
 
     def to_json(self, responses: List) -> List:
-        complete = []
-        for res in responses:
-            try:
-                complete.append(json.loads(res))
-            except Exception as e:
-                print(e)
-                pass
-        return complete
+        json_responses = []
+        for response in responses:
+            json_responses.append(json.loads(response))
+        return json_responses
 
     def format_responses(self, responses: List) -> List[Dict]:
         formated_responses = []
         try:
             for response in responses:
-                response = json.loads(str(response.choices[0]).replace("\n", ""))["text"]
-                formated_responses.append(response)
-                formated_responses = [formated_response.replace("\n", "") for formated_response in formated_responses]
+                res = "{"
+                response = str(response.choices[0]["text"]).replace("\n", "")
+                matches = re.findall(r'\{([^}]*)\}', response)
+                if matches:
+                    res += matches[0]
+                res += "}"
+                formated_responses.append(res)
+
             formated = self.remove_characters(formated_responses)
             print("Formated responses correctly")
             return formated
+
         except Exception as e:
             print(e)
             return []
