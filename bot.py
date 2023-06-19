@@ -52,20 +52,20 @@ async def processMessagesOnChannel(channel: str, msg_limit: int, after: datetime
 async def processSingleMessage(message_content: str, author_id: str) -> List[Dict[str, Any]]:
     matcher = Matcher(jobs=JOBS, techs=TECHS, names=NAME, uf=UF)
     matched = matcher.match_prompt(prompt=message_content)
-    if not matched:
-        return []
-
-    formated = matcher.to_json(matches=matched)
-    formated["discord_id"] = author_id
+    if matched:
+        formated = matcher.to_json(matches=matched)
+        formated["discord_id"] = author_id
+    else:
+        formated = {}
 
     ai_prompts = matcher.get_ai_prompts()
 
     model = Model(prompts=ai_prompts, techs_list=TECHS, jobs_list=JOBS)
     predictions = model.extract_from_all_prompts()
     formated_preds = model.format_responses(responses=predictions)
-    json_preds = model.to_json(formated_preds)
-
+    json_preds = model.to_json(responses=formated_preds)
     result_model = insert_discord_id_in_json(json_preds, [author_id])
+
     return [formated] + result_model
 
 
@@ -79,6 +79,7 @@ def insert_discord_id_in_json(json_preds: List, ids: List):
 
 
 def store_predictions(predictions: List):
+    predictions = [pred for pred in predictions if pred]
     api = strapi.Api(predictions=predictions, jobs=JOBS, techs=TECHS)
     api.insert_predictions()
 
@@ -180,7 +181,6 @@ async def on_message(message):
         try:
             predictions = await processSingleMessage(message_content=message.content, author_id=str(message.author.id))
             store_predictions(predictions=predictions)
-            print("Messages processed and stored.")
         except Exception as e:
             print(e)
             await message.channel.send('Ocorreu um erro ao processar as mensagens. Tente novamente mais tarde.')
