@@ -76,7 +76,7 @@ class Api:
                 }
             ))
             if req.status_code == 200:
-               print("Messages processed and stored.") 
+                print("Messages processed and stored.")
             else:
                 print(req.json())
 

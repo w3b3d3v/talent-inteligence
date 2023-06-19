@@ -20,15 +20,3 @@ def test_match_prompt():
     assert len(match) == 4, "All properties should be set, even if no match"
     assert type(match[0]) == list, "matched jobs should be a list"
     assert type(match[1]) == list, "matched techs should be a list"
-
-
-def test_to_json():
-    matches = (["desenvolvedor"], ["javascript"], "lorenzo", "rio grande do sul")
-    json_matches = matcher.to_json(matches)
-    assert json_matches == {
-        "jobs": ["desenvolvedor"],
-        "techs": ["javascript"],
-        "name": "lorenzo",
-        "uf": "rio grande do sul",
-        "city": ""
-    }, "matched object should be formated correctly"

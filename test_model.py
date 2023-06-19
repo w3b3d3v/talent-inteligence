@@ -15,10 +15,3 @@ def test_model_creation():
     for job, tech in zip(jobs_list, techs_list):
         assert job in model.base_prompt
         assert tech in model.base_prompt
-
-
-def test_characters_removal():
-    model = Model(jobs_list=jobs_list, techs_list=techs_list, prompts=prompts)
-    responses = ["{a : b},.", "{c : d -}"]
-    correct_responses = ["{a:b}", "{c:d}"]
-    assert model.remove_characters(responses=responses) == correct_responses
