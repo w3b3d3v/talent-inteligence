@@ -269,7 +269,7 @@ async def on_message(message):
                 )
 
             except Exception as e:
-                print(e)
+                print(e.with_traceback())
                 await message.channel.send(
                     "Ocorreu um erro ao dar o cargo aos usuários. Tente novamente mais tarde."
                 )
