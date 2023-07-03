@@ -8,6 +8,7 @@ from model import Model
 import strapi
 from matcher import Matcher
 from job_announce_checker import JobAnnounceChecker
+from scripts.grantRole import grant_role_to_users
 import requests
 
 load_dotenv()
@@ -175,6 +176,20 @@ async def on_message(message):
                 return
 
             await message.channel.send(me.guild_permissions.text())
+
+        elif command == 'grantRole':
+            if len(args) != 3:
+                await message.channel.send('Comando inválido. Use: `!model grantRole <role_id>`')
+                return
+
+            role_id = args[2]
+            try:
+                await grant_role_to_users(client=client, filename="users.csv", role_id=role_id)
+
+            except Exception as e:
+                print(e)
+                await message.channel.send('Ocorreu um erro ao dar o cargo aos usuários. Tente novamente mais tarde.')
+                return
 
     elif str(message.channel.id) == CHANNEL_ID_TO_CHECK:
         print("Received message from apresente-se. Processing...")
