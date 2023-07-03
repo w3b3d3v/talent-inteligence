@@ -6,7 +6,9 @@ def read_csv(filename: str) -> List:
     try:
         with open(filename, "r") as f:
             reader = csv.reader(f)
-            return [row[1] for row in reader]
+            rows = [row[1] for row in reader]
+            rows.pop(0)
+            return rows
 
     except FileNotFoundError:
         print(f"File {filename} not found")
