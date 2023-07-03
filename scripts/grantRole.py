@@ -12,13 +12,16 @@ def read_csv(filename: str) -> List:
         print(f"File {filename} not found")
         return []
 
+
 def check_user_in_discord(guild, user_id: str) -> bool:
     member = guild.get_member(int(user_id))
     return member
 
+
 def get_web3dev_guild(client):
-    web3dev_guild_id = 898706705779687435 
+    web3dev_guild_id = 898706705779687435
     return client.get_guild(web3dev_guild_id)
+
 
 async def grant_role_to_users(client, filename: str, role_id: str):
     discord_ids = read_csv(filename)

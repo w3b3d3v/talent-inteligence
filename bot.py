@@ -190,7 +190,6 @@ async def on_message(message):
                 print(e)
                 await message.channel.send('Ocorreu um erro ao dar o cargo aos usuários. Tente novamente mais tarde.')
                 return
-                
 
     elif str(message.channel.id) == CHANNEL_ID_TO_CHECK:
         print("Received message from apresente-se. Processing...")
