@@ -1,6 +1,7 @@
 import requests
 from typing import Dict
 
+
 def trigger_cloud_function(url: str, headers: Dict):
     try:
         res = requests.get(url=url, headers=headers)

@@ -110,7 +110,7 @@ async def processMessagesOnChannel(
     predictions = model.extract_from_all_prompts()
     formated_preds = model.format_responses(responses=predictions)
     json_preds = model.to_json(formated_preds)
-    result_model = insert_discord_id_in_json(json_preds, ids[matcher.last_id_index :])
+    result_model = insert_discord_id_in_json(json_preds, ids[matcher.last_id_index:])
     return matcher_results + result_model
 
 
@@ -184,7 +184,6 @@ async def on_member_join(member):
 
     print(f"User {member.name} joined the server. Triggered cloud functions.")
     trigger_cloud_function(url=grantRoleUrl, headers=headers)
-
 
 
 @client.event
