@@ -110,7 +110,7 @@ async def processMessagesOnChannel(
     predictions = model.extract_from_all_prompts()
     formated_preds = model.format_responses(responses=predictions)
     json_preds = model.to_json(formated_preds)
-    result_model = insert_discord_id_in_json(json_preds, ids[matcher.last_id_index:])
+    result_model = insert_discord_id_in_json(json_preds, ids[matcher.last_id_index :])
     return matcher_results + result_model
 
 
@@ -168,6 +168,7 @@ def check_job_announcement(message: str):
 intents = discord.Intents.default()
 intents.message_content = True
 intents.members = True
+intents.voice_states = True
 
 client = discord.Client(intents=intents)
 
@@ -175,6 +176,32 @@ client = discord.Client(intents=intents)
 @client.event
 async def on_ready():
     print(f"We have logged in as {client.user}")
+
+
+channel_times = {}
+
+
+@client.event
+async def on_voice_state_update(member, before, after):
+    if before.channel != after.channel:
+        if after.channel is None:  # user left voice
+            start_time = channel_times.pop(member.id, None)
+            if start_time is not None:
+                total_time = datetime.datetime.now() - start_time
+                trigger_cloud_function(url="", headers={})
+                print(f"{member.name} spent {total_time} in the voice channel")
+
+        elif before.channel is None:  # joined voice
+            channel_times[member.id] = datetime.datetime.now()
+
+        else:
+            start_time = channel_times.pop(member.id, None)
+            if start_time is not None:
+                total_time = datetime.datetime.now() - start_time
+                # trigger cloud function to write to orbit, activity
+                trigger_cloud_function(url="", headers={})
+                print(f"{member.name} spent {total_time} in the previous voice channel")
+            channel_times[member.id] = datetime.datetime.now()
 
 
 @client.event
