@@ -9,7 +9,7 @@ import strapi
 from matcher import Matcher
 from job_announce_checker import JobAnnounceChecker
 from scripts.grantRole import grant_role_to_users
-import requests
+from scripts.cloudFunction import trigger_cloud_function
 
 load_dotenv()
 
@@ -179,15 +179,12 @@ async def on_ready():
 
 @client.event
 async def on_member_join(member):
-    url = f"https://us-central1-web3dev-bootcamp.cloudfunctions.net/grantDiscordRoleToNewcomer?discordId={member.id}"
+    grantRoleUrl = f"https://us-central1-web3dev-bootcamp.cloudfunctions.net/grantDiscordRoleToNewcomer?discordId={member.id}"
     headers = {}
-    print(f"User {member.name} joined the server. Triggered cloud function.")
-    res = requests.get(url=url, headers=headers)
 
-    if res.status_code == 200:
-        print("Granted roles to user successfully.")
-    else:
-        print("Error granting roles to user.")
+    print(f"User {member.name} joined the server. Triggered cloud functions.")
+    trigger_cloud_function(url=grantRoleUrl, headers=headers)
+
 
 
 @client.event
