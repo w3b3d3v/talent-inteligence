@@ -31,8 +31,11 @@ async def grant_role_to_users(client, filename: str, role_id: str):
     role = guild.get_role(int(role_id))
 
     for discord_id in discord_ids:
-        member = check_user_in_discord(guild, discord_id)
-        if member:
-            await member.add_roles(role)
-            print(f"Granted role to user {discord_id} successfully.")
+        try:
+            member = check_user_in_discord(guild, discord_id)
+            if member:
+                await member.add_roles(role)
+                print(f"Granted role to user {discord_id} successfully.")
+        except Exception as e:
+            print(e)
     return
