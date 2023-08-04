@@ -14,7 +14,7 @@ class Model:
         self.jobs_list = jobs_list
         self.techs_list = techs_list
         self.prompts = prompts
-        self.base_prompt = f"""A mensagem a seguir é um texto de apresentação. Extraia desse texto os campos: emprego, nome, cidade, estado e tecnologias. Tente encaixar as tecnologias extraídas na seguinte lista: {self.techs_list} . Tente encaixar os trabalhos extraídos na seguinte lista: {self.jobs_list} . Caso a tecnologia ou trabalho não se encaixe em nenhuma categoria, crie uma nova com o nome adequado. Retorne esses dados no formato JSON, com os rótulos: jobs, name, city, state, techs. job e techs devem ser listas de strings. Caso não encontre os campos especificados, deixe o atributo em branco. Retorne apenas o JSON, sem nenhum outro texto na resposta.\n"""
+        self.base_prompt = f"""A mensagem a seguir é um texto de apresentação. Extraia desse texto os campos: emprego, nome, cidade, estado e tecnologias. Tente encaixar as tecnologias extraídas na seguinte lista: {self.techs_list} . Tente encaixar os trabalhos extraídos na seguinte lista: {self.jobs_list} . Caso a tecnologia ou trabalho não se encaixe em nenhuma categoria, crie uma nova com o nome adequado. Retorne esses dados no formato JSON, com os rótulos: jobs, name, city, state, techs. job e techs devem ser listas de strings. Caso não encontre os campos especificados, deixe o atributo em branco. Não use todas as tecnologias. Retorne apenas o JSON, sem nenhum outro texto na resposta.\n"""
 
     def extract_from_all_prompts(self) -> List:
         responses = []
