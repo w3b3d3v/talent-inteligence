@@ -36,6 +36,6 @@ def test_last_save_reading():
 
 @pytest.fixture(autouse=True)
 def cleanup(request):
-    yield  # run tests before this
+    yield
     if os.path.exists(FILENAME):
         os.remove(FILENAME)
