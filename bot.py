@@ -7,7 +7,6 @@ from typing import List, Dict, Any
 from model import Model
 import strapi
 from matcher import Matcher
-from job_announce_checker import JobAnnounceChecker
 from scripts.grantRole import grant_role_to_users
 from scripts.cloudFunction import trigger_cloud_function
 
@@ -158,12 +157,6 @@ async def get_channel_by_id(channel_id: str):
         return channel
     except discord.errors.HTTPException:
         return
-
-
-def check_job_announcement(message: str):
-    job_checker = JobAnnounceChecker()
-    is_job = job_checker.check_message(message=message)
-    return is_job
 
 
 intents = discord.Intents.default()
