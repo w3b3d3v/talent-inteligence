@@ -76,6 +76,7 @@ JOBS = [
 ]
 CHANNEL_ID_TO_CHECK = "923218912613634049"
 WEB3DEV_GUILD_ID = "898706705779687435"
+LOGS_CHANNEL_ID = "1137096476904931338"
 
 
 async def processMessagesOnChannel(
@@ -188,6 +189,7 @@ async def on_member_join(member):
 
 @client.event
 async def on_message(message):
+    error_channel = await get_channel_by_id(LOGS_CHANNEL_ID)
     if message.author == client.user:
         return
 
@@ -280,15 +282,9 @@ async def on_message(message):
             store_predictions(predictions=predictions)
         except Exception as e:
             print(e)
-            await message.channel.send(
+            await error_channel.send(
                 "Ocorreu um erro ao processar as mensagens. Tente novamente mais tarde."
             )
             return
-
-    # else:
-    #     is_job_announcement = check_job_announcement(message.content)
-    #     if is_job_announcement:
-    #         await message.reply('<@&1086370714354995342>')
-
 
 client.run(os.getenv("BOT_TOKEN"))
